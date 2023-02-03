@@ -82,7 +82,7 @@ const mainSM = createMachine({
           }),
         },
         hello: {
-          actions: (context, event)=> () => {
+          actions: (context, event)=> {
             console.log('Hello Context:', context);
             console.log('Hello Event:', event);
           },

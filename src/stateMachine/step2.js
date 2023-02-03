@@ -10,8 +10,11 @@ const step2SM = createMachine({
   states: {
     idle: {
       on: {
-        step2Event: "step2_1",
-        actions: sendParent('hello'),
+        step2Event: {
+          target: "step2_1",
+          actions: sendParent('hello'),
+        },
+
       },
     },
     step2_1: {

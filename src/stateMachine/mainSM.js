@@ -1,4 +1,4 @@
-import { assign, createMachine, send } from "xstate";
+import {assign, createMachine, send} from "xstate";
 import step1SM from "./step1";
 import step2SM from "./step2";
 
@@ -22,11 +22,24 @@ const mainSM = createMachine({
         // To forward all events from parent to child machine
         // using this method, the state doesn't get well updated in the parent
         // autoForward: true,
+
         // Deriving child context from parent context
-        // data: {
-        //   count: (context, event) => context.parentCount,
-        // },
-        onDone: "step2",
+        data: (context, event) => {
+          console.log(context, event);
+          return ({
+            step1Count: context.parentCount
+          })
+        },
+
+        onDone: {
+          target:"step2",
+          actions:assign({
+          parentCount: (context, event) => {
+            // event is:
+            // { type: 'done.invoke.step1', data: { step1Count: 'parentCount+1' } }
+            return event.data.step1Count;
+          }
+        })},
       },
       on: {
         step1Event: {
@@ -45,7 +58,21 @@ const mainSM = createMachine({
       invoke: {
         id: "step2Machine",
         src: step2SM,
-        onDone: "done",
+        data: (context, event) => {
+          console.log(context, event);
+          return ({
+            step2Count: event.data.step1Count
+          })
+        },
+        onDone: {
+          target:"done",
+          actions:assign({
+            parentCount: (context, event) => {
+              // event is:
+              // { type: 'done.invoke.step2', data: { step2Count: 'step1Count+1' } }
+              return event.data.step2Count;
+            }
+          })},
       },
       on: {
         // A different way of sending events from parent to child machine
@@ -54,6 +81,12 @@ const mainSM = createMachine({
             to: "step2Machine",
           }),
         },
+        hello: {
+          actions: (context, event)=> () => {
+            console.log('Hello Context:', context);
+            console.log('Hello Event:', event);
+          },
+        }
       },
     },
     done: {

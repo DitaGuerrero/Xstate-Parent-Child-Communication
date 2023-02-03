@@ -1,13 +1,17 @@
-import { createMachine } from "xstate";
+import {createMachine, sendParent} from "xstate";
 
 const step2SM = createMachine({
   id: "step2",
   initial: "idle",
+  context: {
+    step2Count:0
+  },
   predictableActionArguments: true,
   states: {
     idle: {
       on: {
         step2Event: "step2_1",
+        actions: sendParent('hello'),
       },
     },
     step2_1: {
@@ -22,6 +26,9 @@ const step2SM = createMachine({
     },
     done: {
       type: "final",
+      data: (context, event) => ({
+        step2Count: context.step2Count + 1,
+      })
     },
   },
 });

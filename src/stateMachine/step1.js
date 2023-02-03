@@ -33,6 +33,9 @@ const step1SM = createMachine({
     },
     done: {
       type: "final",
+      data: (context, event) => ({
+        step1Count: context.step1Count + 1,
+      })
     },
   },
 });
